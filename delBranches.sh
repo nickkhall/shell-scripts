@@ -1,5 +1,8 @@
 #!/bin/bash
 
+## DO NOT USE THIS SCRIPT RIGHT NOW, IT DOES NOT WORK WITH ARGUMENTS
+## GOOD JOB NICK, YOU HIT A HOMERUN ON THIS ONE!
+
 getBranches() {
 	# If the user specifies a branch, we know they want to remove all branches
 	# EXCEPT the branch they specified and the master and stash branches.
