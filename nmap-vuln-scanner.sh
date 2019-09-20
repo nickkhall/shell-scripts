@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# Use at your own risk. I am not responsible for any malicious use of this script. Do not use this script on any machine
+# you do not have persmission to do so. This script is for educational purposes only.
 
 # IP
 ip=10.11.1.0
