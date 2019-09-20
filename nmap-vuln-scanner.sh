@@ -47,7 +47,7 @@ for ((i = 0; i < $#; i++)); do
 			ip_range="${args[$(($i+1))]}"
 			;;
 		-p | --ports )
-			ports="${args[$(($i+1))]}"
+			ports="${args[$(($i+1))]}"			
 			;;
 		-s | --scripts )
 			scripts="${args[$(($i+1))]}"
@@ -72,31 +72,29 @@ read_scripts() {
 	nmap_command="$1"
 	current_ip="$2"
 	final_nmap_command=""
-
-	echo "NMAP COMING IN: $nmap_command"
-
+	
 	cat "$scripts" | while read nse
 		do
                         if [[ $dir -ne 0 ]]; then
-                                final_nmap_command="$nmap_command -script=$nse -oA $current_ip/${nse/'.nse'/''} $current_ip &"
-				echo -e "\e[33mEXECUTING: \e[39m$final_nmap_command"
+                                final_nmap_command="$nmap_command -script=$nse -oA $current_ip/${nse/'.nse'/''} $current_ip"
+				echo -e "\e[33mEXECUTING: \e[92m$final_nmap_command\e[39m"
                         else
-                                final_nmap_command="$nmap_command -script=$nse -oA ${nse/'.nse'/''} $current_ip &"
-				echo -e "\e[33mEXECUTING: \e[39m$final_nmap_command"
+                                final_nmap_command="$nmap_command -script=$nse -oA ${nse/'.nse'/''} $current_ip"
+				echo -e "\e[33mEXECUTING: \e[92m$final_nmap_command\e[39m"
                         fi
 
-			eval $final_nmap_command
-                done
+			eval "$final_nmap_command"
+                done	
 }
 
 # If the user supplied an IP range to scan
-if [[ $ip_range -gt 0 ]]; then
+if [[ $ip_range -gt 0 ]]; then	
 	# Iterate over the IP range
 	for ((cur_ip_range = 0; cur_ip_range <= $ip_range; cur_ip_range++)); do
 		IFS="."
 		updated_ip=""
 		read -ra ip_array <<< "$ip"
-
+		
 		# Iterate over the split IP address array
 		for ((index = 0; index < "${#ip_array[@]}"; index++)); do
 			octet="${ip_array[$index]}"
@@ -109,36 +107,36 @@ if [[ $ip_range -gt 0 ]]; then
 			else
 				# Append the current octet to the updated IP
 				updated_ip+="$octet."
-			fi
+			fi	
 		done
 
-		nmap_command="nmap"
+		nmap_command="nmap"		
 
 		# If the user specified directory mode
 		if [[ $dir -ne 0 ]]; then
 			# Create a directory with the current IP address as the name
-			eval "mkdir $updated_ip"
+			mkdir "$updated_ip"
 		fi
 
 		# If the user specified a list of ports
 		if [[ $ports -ne 0 ]]; then
 			nmap_command+=" -p $ports"
 		fi
-
-		# Iterate over scripts and run nmap command(s)
+	
+		# Iterate over scripts and run nmap command(s)	
 		read_scripts "$nmap_command" "$updated_ip"
 
 	done
 
 # Otherwise, the user only wants to scan one IP address
-else
+else 
 	nmap_command_single="nmap"
-	echo "THIS IS SINGLE IP WITH NO RANGE"
+
 	# If the user specified a list of ports
 	if [[ $ports -ne 0 ]]; then
 		nmap_command_single+=" -p $ports"
 	fi
-
+	
 	# If the user specified directory mode
 	if [[ $dir -ne 0 ]]; then
 		# Create a directory with the current IP address as the name
