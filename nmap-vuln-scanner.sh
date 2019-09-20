@@ -75,17 +75,65 @@ read_scripts() {
 	
 	cat "$scripts" | while read nse
 		do
+			# If in directory mode
                         if [[ $dir -ne 0 ]]; then
-                                final_nmap_command="$nmap_command -script=$nse -oA $current_ip/${nse/'.nse'/''} $current_ip"
+				# Create the nmap scan for directory mode
+                                final_nmap_command="$nmap_command -script=$nse -oN $current_ip/${nse/'.nse'/''} $current_ip"
 				echo -e "\e[33mEXECUTING: \e[92m$final_nmap_command\e[39m"
-                        else
-                                final_nmap_command="$nmap_command -script=$nse -oA ${nse/'.nse'/''} $current_ip"
+                        # Else we are in file mode
+			else
+				# Create the nmap scan for file mode
+                                final_nmap_command="$nmap_command -script=$nse -oN ${nse/'.nse'/''} $current_ip"
 				echo -e "\e[33mEXECUTING: \e[92m$final_nmap_command\e[39m"
                         fi
 
 			eval "$final_nmap_command"
+			
+			#Check to see if recently executed script is not needed
+			if [[ $dir -ne 0 ]]; then
+				prune_file "$current_ip/${nse%.nse}"
+			else	
+				prune_file "${nse%.nse}"
+			fi
                 done
 }
+
+# Function for handling removing files
+prune_file() {
+        file="$1"
+	has_flag=0
+        
+	# Check if file exists
+        if [[ -f "$file" ]]; then
+                # Read the file
+                while read -r line
+                do	
+                        # If the string "host is down" exists
+                        if [[ "$line" == *"Host seems down"* || "$line" == *"0 hosts up"* ]]; then
+                                # Set the flag for deleting the file after read    
+				has_flag=1
+                        fi
+                done < "$file"
+	
+	fi
+
+	# If we got a match for host down, delete the file	
+	if [[ $has_flag -ne 0 ]]; then
+		rm -rf "$file"
+	fi
+}
+
+# Function for handling removing an empty directory
+prune_directory() {
+        current_directory="$1"
+
+	# If directory is emtpy
+        if [[ ! $(ls -A "$current_directory") ]]; then
+                # Remove directory
+                rm -rf "$current_directory"
+        fi
+}
+
 
 # If the user supplied an IP range to scan
 if [[ $ip_range -gt 0 ]]; then
@@ -125,6 +173,12 @@ if [[ $ip_range -gt 0 ]]; then
 
 		# Iterate over scripts and run nmap command(s)
 		read_scripts "$nmap_command" "$updated_ip"
+	
+		# If the user specified directory mode
+		if [[ $dir -ne 0 ]]; then
+			# Check to see if the directory is emtpy from the prune
+			prune_directory "$updated_ip"
+		fi
 
 	done
 
@@ -140,10 +194,15 @@ else
 	# If the user specified directory mode
 	if [[ $dir -ne 0 ]]; then
 		# Create a directory with the current IP address as the name
-		mkdir_command="mkdir $ip"
-		eval $mkdir_command
+		eval mkdir "$ip"
 	fi
 
 	# Iterate over scripts and run nmap command(s)
-	read_scripts "$nmap_command_single" $ip
+	read_scripts "$nmap_command_single" "$ip"
+
+	# If the user specified directory mode
+	if [[ $dir -ne 0 ]]; then
+		# Check to see if the directory is empty from the prune
+		prune_directory "$ip"
+	fi
 fi
