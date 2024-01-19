@@ -16,15 +16,6 @@ for ((i = 0; i < $#; i++)); do
       print_help
       exit 1;
       ;;
-    -b | --branch )
-      # Check if the next argument exists and is not another flag
-      if [[ $((i + 1)) -lt $# && ! "${args[$(($i + 1))]}" == -* ]]; then
-        upstream_branch="${args[$((i+1))]}"
-      else
-        echo -e $'\e[31mERROR\e[37m: Missing branch name after -b flag.'
-        exit 1
-      fi
-      ;;
     *)
       # Check if it's a positional argument (upstream branch)
       if [ "$1" ]; then
