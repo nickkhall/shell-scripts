@@ -105,12 +105,11 @@ update_branch() {
     else
       echo -e $'\e[32mStashed changes applied successfully.\e[37m'
     fi
-  else
-
-  git checkout $upstream_branch && \
-    git pull && \
-    git checkout $current_branch && \
-    git merge $upstream_branch
+  elif check_is_in_git_directory; then
+    git checkout $upstream_branch && \
+      git pull && \
+      git checkout $current_branch && \
+      git merge $upstream_branch
 
   fi
 }
