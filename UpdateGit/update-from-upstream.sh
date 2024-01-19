@@ -16,9 +16,6 @@ for ((i = 0; i < $#; i++)); do
       print_help
       exit 1;
       ;;
-    -b | --branch )
-      upstream_branch="${args[$((i+1))]}"
-      ;;
     *)
       # Check if it's a positional argument (upstream branch)
       if [ "$1" ]; then
