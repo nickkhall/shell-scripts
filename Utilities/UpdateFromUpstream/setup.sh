@@ -13,7 +13,7 @@ for ((i = 0; i < $#; i++)); do
       echo ""
       echo -e $'REQUIRED*'
       echo "-----------------------------------------------------------------"
-      echo -e $'\e[32m-f  \e[39mor \e[32m--file\e[39m*   \e[39mThe filepath to the file to read from to generate the config file.'
+      echo -e $'\e[32m-u  \e[39mor \e[32m--user\e[39m*   \e[39mThe user to generate the config file for.'
       echo "-----------------------------------------------------------------"
       echo ""
       echo -e $'\e[35mEXAMPLES\e[39m:'
